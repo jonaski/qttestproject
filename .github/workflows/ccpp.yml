@@ -1,0 +1,116 @@
+name: C/C++ CI
+on: [push, pull_request]
+
+jobs:
+  build_opensuse_lp153_qt6:
+    name: Build openSUSE Leap 15.3 Qt 6
+    runs-on: ubuntu-latest
+    container:
+      image: opensuse/leap:15.3
+    steps:
+      - uses: actions/checkout@v1.2.0
+      - name: Add Qt 6 repo
+        run: zypper -n ar -c -f -n 'repo-qt6' https://download.opensuse.org/repositories/home:/jonaski:/qt6/openSUSE_Leap_15.3/ repo-qt6
+      - name: Update packages
+        run: zypper -n --gpg-auto-import-keys ref
+      - name: Install openSUSE dependencies
+        run: >
+            zypper -n --gpg-auto-import-keys install
+            lsb-release
+            rpm-build
+            git
+            tar
+            make
+            cmake
+            gcc10
+            gcc10-c++
+            gettext-tools
+            glibc-devel
+            libboost_headers-devel
+            boost-devel
+            glib2-devel
+            glib2-tools
+            qt6-core-devel
+            qt6-gui-devel
+            qt6-gui-private-devel
+            qt6-widgets-devel
+            qt6-concurrent-devel
+            qt6-network-devel
+            qt6-sql-devel
+            qt6-dbus-devel
+            qt6-test-devel
+            qt6-base-common-devel
+            qt6-sql-sqlite
+            qt6-linguist-devel
+            desktop-file-utils
+            update-desktop-files
+            appstream-glib
+            hicolor-icon-theme
+      - name: Create Build Environment
+        shell: bash
+        run: cmake -E make_directory build
+      - name: Configure CMake
+        shell: bash
+        env:
+          CC: gcc-10
+          CXX: g++-10
+        working-directory: build
+        run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      - name: Build
+        working-directory: build
+        run: make
+
+  build_opensuse_tumbleweed_qt6:
+    name: Build openSUSE Tumbleweed Qt 6
+    runs-on: ubuntu-latest
+    container:
+      image: opensuse/tumbleweed
+    steps:
+      - uses: actions/checkout@v1.2.0
+      - name: Update packages
+        run: zypper -n --gpg-auto-import-keys ref
+      - name: Upgrade packages
+        run: zypper -n --gpg-auto-import-keys dup
+      - name: Install openSUSE dependencies
+        run: >
+            zypper -n --gpg-auto-import-keys install
+            lsb-release
+            rpm-build
+            git
+            tar
+            make
+            cmake
+            gcc
+            gcc-c++
+            gettext-tools
+            glibc-devel
+            libboost_headers-devel
+            boost-devel
+            glib2-devel
+            glib2-tools
+            qt6-core-devel
+            qt6-gui-devel
+            qt6-gui-private-devel
+            qt6-widgets-devel
+            qt6-concurrent-devel
+            qt6-network-devel
+            qt6-sql-devel
+            qt6-dbus-devel
+            qt6-test-devel
+            qt6-base-common-devel
+            qt6-sql-sqlite
+            qt6-linguist-devel
+            desktop-file-utils
+            update-desktop-files
+            appstream-glib
+            hicolor-icon-theme
+      - name: Create Build Environment
+        shell: bash
+        run: cmake -E make_directory build
+      - name: Configure CMake
+        shell: bash
+        working-directory: build
+        run: cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+      - name: Build
+        working-directory: build
+        run: make
